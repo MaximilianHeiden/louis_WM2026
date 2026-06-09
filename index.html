@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DFB Sammelalbum</title>
+<style>
+body{margin:0;background:#111418;color:#fff;font-family:Arial,sans-serif}
+header{padding:24px;border-bottom:1px solid #2a2f36;position:sticky;top:0;background:#111418;z-index:1000}
+h1{margin:0 0 10px}
+.stats{color:#cfd6dd}
+section{padding:24px}
+h2{margin:20px 0;border-bottom:1px solid #2a2f36;padding-bottom:8px;color:#9ecbff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,180px));gap:28px;justify-content:flex-start}
+.card{background:#232933;border:3px solid transparent;border-radius:16px;padding:14px;cursor:pointer;transition:.15s;position:relative;box-sizing:border-box;width:180px;height:300px;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-2px)}
+.card.owned{border-color:#3cbf5a;background:#1e3023;box-shadow:0 0 12px rgba(60,191,90,.45)}
+.nr{font-size:14px;color:#aeb7c1}
+.name{font-size:22px;font-weight:bold;margin-top:auto;margin-bottom:auto;text-align:center;min-height:60px;display:flex;align-items:center;justify-content:center}.dupe{position:absolute;top:10px;right:10px;font-size:22px}.badge{position:absolute;top:8px;right:8px;background:#3cbf5a;color:#fff;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:bold}
+.controls{margin-top:14px;display:none}
+.card.owned .controls{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:auto}
+button{padding:4px 10px}
+.count{font-weight:bold;min-width:24px;text-align:center}
+</style>
+</head>
+<body>
+<header>
+<h1>⚽ LOUIS' DFB Sammelkarten</h1>
+<div class="stats">
+<div id="progressBar" style="position:relative;background:#2a2f36;border-radius:10px;height:24px;overflow:hidden"><div id="progressFill" style="height:100%;width:0%;background:#3cbf5a"></div><div id="progressText" style="position:absolute;left:10px;top:0;bottom:0;display:flex;align-items:center;color:white;font-weight:bold">0 / 72</div></div>
+<div id="stats" style="margin-top:14px;line-height:2.4"></div>
+</div>
+</header>
+
+<div id="app"></div>
+
+<script>
+const cards=[
+["TEAM",[
+[1,"DFB-Adler"],[2,"HERZ"],[3,"ENERGIE"],[4,"RESILIENZ"],[5,"VISION"],[6,"KREATIVITÄT"],[7,"KRAFT"],[8,"ENTSCHLOS-<br>SENHEIT"],[9,"Julian Nagelsmann"]
+]],
+["PORTRAIT",[
+[10,"Joshua Kimmich"],[11,"Antonio Rüdiger"],[12,"Marc-André ter Stegen"],[13,"Leon Goretzka"],[14,"Maximilian Beier"],[15,"David Raum"],[16,"Leroy Sané"],[17,"Jamie Leweling"],[18,"Oliver Baumann"],[19,"Nico Schlotterbeck"],[20,"Waldemar Anton"],[21,"Niclas Füllkrug"],[22,"Florian Wirtz"],[23,"Karim Adeyemi"],[24,"Aleksandar Pavlović"],[25,"Jamal Musiala"],[26,"Serge Gnabry"],[27,"Kai Havertz"],[28,"Pascal Groß"],[29,"Angelo Stiller"],[30,"Alexander Nübel"],[31,"Maximilian Mittelstädt"],[32,"Nick Woltemade"],[33,"Felix Nmecha"],[34,"Robert Andrich"],[35,"Jonathan Tah"],[36,"Robin Koch"]
+]],
+["LAUFBILDER",[
+[37,"Joshua Kimmich"],[38,"Antonio Rüdiger"],[39,"Marc-André ter Stegen"],[40,"Leon Goretzka"],[41,"Maximilian Beier"],[42,"David Raum"],[43,"Leroy Sané"],[44,"Jamie Leweling"],[45,"Oliver Baumann"],[46,"Nico Schlotterbeck"],[47,"Waldemar Anton"],[48,"Niclas Füllkrug"],[49,"Florian Wirtz"],[50,"Karim Adeyemi"],[51,"Aleksandar Pavlović"],[52,"Jamal Musiala"],[53,"Serge Gnabry"],[54,"Kai Havertz"],[55,"Pascal Groß"],[56,"Angelo Stiller"],[57,"Alexander Nübel"],[58,"Maximilian Mittelstädt"],[59,"Nick Woltemade"],[60,"Felix Nmecha"],[61,"Robert Andrich"],[62,"Jonathan Tah"],[63,"Robin Koch"]
+]],
+["GRAFFITI",[
+[64,"Joshua Kimmich"],[65,"Maximilian Beier"],[66,"Waldemar Anton"],[67,"Niclas Füllkrug"],[68,"Karim Adeyemi"],[69,"Pascal Groß"],[70,"Felix Nmecha"],[71,"Alexander Nübel"],[72,"Jonathan Tah"]
+]]
+];
+
+const data=JSON.parse(localStorage.getItem("dfb_album_v2")||"{}");
+
+function save(){localStorage.setItem("dfb_album_v2",JSON.stringify(data));}
+
+function count(id){return data[id]||0;}
+
+function change(id,delta){
+ let v=Math.max(0,count(id)+delta);
+ data[id]=v;
+ save();
+ render();
+}
+
+function toggle(id){
+ if(count(id)===0){data[id]=1;}
+ else {data[id]=0;}
+ save();
+ render();
+}
+
+function render(){
+ let owned=0, dupes=0;
+ cards.forEach(g=>g[1].forEach(c=>{
+   if(count(c[0])>0) owned++;
+   if(count(c[0])>1) dupes += count(c[0])-1;
+ }));
+ document.getElementById("progressFill").style.width=(owned/72*100)+"%";
+document.getElementById("stats").innerHTML=`Fehlend: ${72-owned}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dubletten: ${dupes}`;document.getElementById("progressText").textContent=`${owned} / 72`;
+
+ let html="";
+ cards.forEach(group=>{
+   html += `<section><h2>${group[0]}</h2><div class="grid">`;
+   group[1].forEach(card=>{
+      const n=count(card[0]); const badge=n>1?`<div class="dupe">📚</div>`:"";
+      html += `<div class="card ${n>0?'owned':''}" onclick="toggle(${card[0]})">${badge}
+      <div class="nr">#${card[0]}</div>
+      <div class="name">${card[1].includes(' ') ? card[1].replace(/\s([^\s]+)$/,'<br>$1') : card[1]}</div>
+      <div class="controls" onclick="event.stopPropagation()">
+        <button onclick="change(${card[0]},-1)">−</button>
+        <div class="count">${n}</div>
+        <button onclick="change(${card[0]},1)">+</button>
+      </div>
+      </div>`;
+   });
+   html += "</div></section>";
+ });
+ document.getElementById("app").innerHTML=html;
+}
+render();
+</script>
+</body>
+</html>
