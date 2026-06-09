@@ -12,7 +12,21 @@ h1{margin:0 0 10px}
 section{padding:24px}
 h2{margin:20px 0;border-bottom:1px solid #2a2f36;padding-bottom:8px;color:#9ecbff}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,180px));gap:28px;justify-content:flex-start}
-.card{background:#232933;border:3px solid transparent;border-radius:16px;padding:14px;cursor:pointer;transition:.15s;position:relative;box-sizing:border-box;width:180px;height:300px;display:flex;flex-direction:column}
+.card{
+    background:#232933;
+    border:3px solid transparent;
+    border-radius:16px;
+    padding:14px;
+    cursor:pointer;
+    transition:.15s;
+    position:relative;
+    box-sizing:border-box;
+    width:100%;
+    max-width:180px;
+    height:300px;
+    display:flex;
+    flex-direction:column
+}
 .card:hover{transform:translateY(-2px)}
 .card.owned{border-color:#3cbf5a;background:#1e3023;box-shadow:0 0 12px rgba(60,191,90,.45)}
 .nr{font-size:14px;color:#aeb7c1}
